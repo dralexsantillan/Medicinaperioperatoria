@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Medicina Perioperatoria | Casos clínicos</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta
+    name="description"
+    content="Página de medicina perioperatoria con casos clínicos interactivos alojados en GitHub."
+  />
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="page-container">
+    <!-- HEADER -->
+    <header>
+      <div class="logo">
+        <span class="logo__title">Medicina Perioperatoria</span>
+        <span class="logo__subtitle">Evaluación, optimización y educación clínica</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#casos">Casos clínicos</a>
+        <a href="#sobre">Sobre el proyecto</a>
+      </nav>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-text">
+        <h1>Casos clínicos de medicina perioperatoria basados en evidencia</h1>
+        <p>
+          Este sitio reúne escenarios clínicos de valoración y manejo perioperatorio,
+          diseñados para anestesiólogos, residentes y equipos de cuidados críticos.
+          Los casos se alojan en GitHub para facilitar su actualización, versión
+          y uso en docencia.
+        </p>
+
+        <div class="hero-badges">
+          <span class="badge">Valoración preoperatoria</span>
+          <span class="badge">Cirugía ambulatoria y de alto riesgo</span>
+          <span class="badge">Casos interactivos desde GitHub</span>
+        </div>
+
+        <div class="hero-cta">
+          <button class="btn-primary" onclick="document.getElementById('casos').scrollIntoView({behavior:'smooth'})">
+            Ver casos clínicos
+            <span>→</span>
+          </button>
+          <button class="btn-secondary" onclick="document.getElementById('sobre').scrollIntoView({behavior:'smooth'})">
+            Conocer el enfoque
+          </button>
+        </div>
+      </div>
+
+      <div class="hero-highlight">
+        <strong>Bienvenido.</strong> Esta página es un espacio vivo para explorar la
+        medicina perioperatoria mediante casos clínicos estructurados, algoritmos y
+        decisiones tipo “elige tu propia aventura”, con los archivos originales
+        alojados en <strong>GitHub</strong> para uso docente y colaborativo.
+      </div>
+    </section>
+
+    <!-- SECCIÓN CASOS CLÍNICOS -->
+    <section id="casos" class="section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">Casos clínicos (vinculados a GitHub)</h2>
+          <p class="section-subtitle">
+            Selecciona un caso para abrir el archivo correspondiente en GitHub
+            (Markdown, HTML o PDF). Puedes usar las etiquetas para filtrar.
+          </p>
+        </div>
+      </div>
+
+      <!-- Barra de filtros -->
+      <div class="filter-bar">
+        <button class="filter-btn active" data-filter="all">Todos</button>
+        <button class="filter-btn" data-filter="ambulatoria">Cirugía ambulatoria</button>
+        <button class="filter-btn" data-filter="alto-riesgo">Alto riesgo</button>
+        <button class="filter-btn" data-filter="cardiovascular">Cardiovascular</button>
+        <button class="filter-btn" data-filter="bandersnatch">Interactivo / Bandersnatch</button>
+      </div>
+
+      <!-- Grid de casos -->
+      <div class="cases-grid" id="casesGrid">
+        <!-- EJEMPLO 1 -->
+        <article class="case-card" data-tags="ambulatoria bandersnatch">
+          <span class="case-tag">Ambulatoria · Bandersnatch</span>
+          <h3 class="case-title">Artroscopia de rodilla en paciente con stent farmacológico</h3>
+          <div class="case-meta">
+            Varón 72 años · Cardiopatía isquémica · ERC G3 · Procedimiento de baja
+            complejidad, riesgo cardiovascular intermedio.
+          </div>
+          <p class="case-description">
+            Caso tipo árbol de decisiones sobre valoración preoperatoria, manejo de
+            antiagregación, necesidad de estudios complementarios y selección de
+            técnica anestésica.
+          </p>
+          <div class="card-footer">
+            <a
+              class="case-link"
+              href="https://github.com/TU_USUARIO/TU_REPOSITORIO/blob/main/casos/artroscopia-rodilla-stent.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Abrir en GitHub
+              <span>↗</span>
+            </a>
+            <span class="case-source">/casos/artroscopia-rodilla-stent.md</span>
+          </div>
+        </article>
+
+        <!-- EJEMPLO 2 -->
+        <article class="case-card" data-tags="alto-riesgo cardiovascular">
+          <span class="case-tag">Alto riesgo · Cardiovascular</span>
+          <h3 class="case-title">Paciente con cardiopatía isquémica y cirugía abdominal mayor</h3>
+          <div class="case-meta">
+            Varón 68 años · FEVI 35% · diabetes · cirugía de hemicolectomía electiva.
+          </div>
+          <p class="case-description">
+            Enfoque integral de riesgo perioperatorio, optimización prequirúrgica,
+            elección de monitoreo y criterios de ingreso a UCI posoperatoria.
+          </p>
+          <div class="card-footer">
+            <a
+              class="case-link"
+              href="https://github.com/TU_USUARIO/TU_REPOSITORIO/blob/main/casos/cardiopatia-isquemica-hemicolectomia.html"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Ver caso
+              <span>↗</span>
+            </a>
+            <span class="case-source">/casos/cardiopatia-isquemica-hemicolectomia.html</span>
+          </div>
+        </article>
+
+        <!-- EJEMPLO 3 -->
+        <article class="case-card" data-tags="ambulatoria">
+          <span class="case-tag">Ambulatoria</span>
+          <h3 class="case-title">Cirugía de catarata en paciente añoso frágil</h3>
+          <div class="case-meta">
+            Mujer 82 años · fragilidad · polifarmacia · cirugía oftálmica ambulatoria.
+          </div>
+          <p class="case-description">
+            Caso centrado en evaluación funcional, fragilidad, optimización
+            preoperatoria y toma de decisiones sobre anestesia local, sedación o
+            anestesia general.
+          </p>
+          <div class="card-footer">
+            <a
+              class="case-link"
+              href="https://github.com/TU_USUARIO/TU_REPOSITORIO/blob/main/casos/cirugia-catarata-fragilidad.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Descargar PDF
+              <span>↗</span>
+            </a>
+            <span class="case-source">/casos/cirugia-catarata-fragilidad.pdf</span>
+          </div>
+        </article>
+
+        <!-- EJEMPLO 4 -->
+        <article class="case-card" data-tags="bandersnatch alto-riesgo">
+          <span class="case-tag">Interactivo · Bandersnatch</span>
+          <h3 class="case-title">Choque séptico posoperatorio y decisión de traslado a UCI</h3>
+          <div class="case-meta">
+            Posoperatorio de cirugía abdominal · hipotensión · lactato elevado.
+          </div>
+          <p class="case-description">
+            Caso interactivo con rutas alternativas para seleccionar reanimación
+            inicial, uso de vasopresores, monitoreo avanzado y decisión de traslado.
+          </p>
+          <div class="card-footer">
+            <a
+              class="case-link"
+              href="https://github.com/TU_USUARIO/TU_REPOSITORIO/blob/main/casos/choque-septico-uci-arbol-decisiones.md"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Abrir árbol de decisiones
+              <span>↗</span>
+            </a>
+            <span class="case-source">/casos/choque-septico-uci-arbol-decisiones.md</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- SECCIÓN SOBRE EL PROYECTO -->
+    <section id="sobre" class="section">
+      <div class="about-card">
+        <h2>Sobre este proyecto de medicina perioperatoria</h2>
+        <p>
+          Esta página nace con la intención de concentrar casos clínicos de medicina
+          perioperatoria en un formato accesible, versionable y reutilizable para
+          docencia. GitHub funciona como repositorio central de los archivos:
+          permite llevar control de cambios, colaborar con otros colegas y utilizar
+          los mismos casos en talleres, simulaciones y cursos en línea.
+        </p>
+        <p>
+          Los escenarios están diseñados para promover el razonamiento clínico:
+          valoración de riesgo, decisiones perioperatorias, uso adecuado de
+          recursos, y discusión estructurada con residentes, enfermería,
+          paramédicos y equipos quirúrgicos.
+        </p>
+        <div class="about-highlight">
+          Si te interesa colaborar, adaptar estos casos a tu programa de enseñanza o
+          desarrollar nuevos escenarios para tu hospital o curso, puedes clonar el
+          repositorio de GitHub o contactar directamente al autor desde los enlaces
+          que se agreguen en esta página.
+        </div>
+      </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer>
+      <span>© <span id="year"></span> Medicina Perioperatoria · Casos clínicos.</span>
+      <span>Página estática vinculada a repositorio GitHub.</span>
+    </footer>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
