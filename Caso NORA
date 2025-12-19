@@ -1,0 +1,579 @@
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>NORA – Manejo de crisis y factor humano (Bandersnatch dicotómico)</title>
+  <style>
+    :root{
+      --bg:#0b1220; --card:#121b2f; --muted:#8aa0c8; --text:#e9f0ff;
+      --ok:#2dd4bf; --warn:#fbbf24; --bad:#fb7185; --btn:#223152; --btn2:#2b3b63;
+    }
+    body{margin:0;background:linear-gradient(180deg,var(--bg),#070b14);font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;color:var(--text);}
+    .wrap{max-width:920px;margin:0 auto;padding:18px;}
+    .header{display:flex;gap:12px;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;}
+    h1{font-size:18px;margin:0 0 6px 0;letter-spacing:.2px}
+    .sub{color:var(--muted);font-size:13px;line-height:1.35;margin:0}
+    .pill{display:inline-block;border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:6px 10px;color:var(--muted);font-size:12px}
+    .card{background:rgba(18,27,47,.9);border:1px solid rgba(255,255,255,.10);border-radius:16px;padding:16px;margin-top:14px;box-shadow:0 12px 30px rgba(0,0,0,.25)}
+    .row{display:flex;gap:14px;flex-wrap:wrap}
+    .col{flex:1;min-width:260px}
+    .label{color:var(--muted);font-size:12px;margin:0 0 8px 0}
+    .scenario{font-size:15px;line-height:1.5;margin:0}
+    .meta{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap}
+    .meta div{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);border-radius:12px;padding:8px 10px;font-size:12px;color:var(--muted)}
+    .choices{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+    button{
+      appearance:none;border:1px solid rgba(255,255,255,.14);
+      background:linear-gradient(180deg,var(--btn),var(--btn2));
+      color:var(--text);border-radius:14px;padding:12px 12px;
+      font-size:14px;line-height:1.25;cursor:pointer;flex:1;min-width:260px;
+    }
+    button:active{transform:translateY(1px)}
+    .feedback{margin-top:14px;border-radius:14px;padding:12px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04)}
+    .fb-title{display:flex;align-items:center;gap:10px;margin:0 0 6px 0;font-weight:650}
+    .tag{font-size:12px;border-radius:999px;padding:2px 8px;border:1px solid rgba(255,255,255,.16);color:var(--muted)}
+    .fb-body{margin:0;color:var(--text);line-height:1.45;font-size:14px}
+    .hr{height:1px;background:rgba(255,255,255,.10);margin:14px 0}
+    .small{font-size:12px;color:var(--muted);line-height:1.4}
+    .footer-actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .ghost{background:transparent}
+    .log{max-height:220px;overflow:auto;border:1px dashed rgba(255,255,255,.16);border-radius:14px;padding:10px;background:rgba(0,0,0,.12)}
+    .log p{margin:0 0 8px 0;font-size:12px;color:var(--muted);line-height:1.35}
+    .kpi{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+    .kpi span{font-size:12px;color:var(--muted);border:1px solid rgba(255,255,255,.12);border-radius:999px;padding:4px 8px;background:rgba(255,255,255,.04)}
+    .endbox{border-left:4px solid rgba(45,212,191,.6);padding-left:12px}
+    .warnline{border-left-color:rgba(251,191,36,.7)}
+    .badline{border-left-color:rgba(251,113,133,.7)}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="header">
+      <div>
+        <h1>NORA – Crisis en sala fuera de quirófano (factor humano + manejo de crisis)</h1>
+        <p class="sub">
+          Interactivo dicotómico (A/B), orientado a toma de decisiones realistas, CRM y seguridad.
+          Diseñado para correr en celular, sin internet.
+        </p>
+      </div>
+      <div class="pill">Modo: Bandersnatch</div>
+    </div>
+
+    <div class="card">
+      <div class="row">
+        <div class="col">
+          <p class="label">Escenario</p>
+          <p id="scene" class="scenario"></p>
+
+          <div id="meta" class="meta"></div>
+
+          <div class="choices">
+            <button id="aBtn"></button>
+            <button id="bBtn"></button>
+          </div>
+
+          <div id="fb" class="feedback" style="display:none;">
+            <div class="fb-title">
+              <span id="fbEmoji">🧭</span>
+              <span id="fbTitle">Retroalimentación</span>
+              <span id="fbTag" class="tag"></span>
+            </div>
+            <p id="fbBody" class="fb-body"></p>
+          </div>
+
+          <div class="footer-actions">
+            <button class="ghost" id="restartBtn">Reiniciar caso</button>
+            <button class="ghost" id="toggleLogBtn">Mostrar/ocultar bitácora</button>
+          </div>
+
+          <div class="hr"></div>
+          <p class="small">
+            Nota didáctica: La retroalimentación evita “orientar al error”; se enfoca en seguridad, trade-offs,
+            y en cómo estructurar el equipo/decisión bajo presión (factor humano).
+          </p>
+        </div>
+
+        <div class="col">
+          <p class="label">Bitácora de decisiones (para debriefing rápido)</p>
+          <div id="log" class="log" style="display:none;"></div>
+          <div class="kpi" id="kpis"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" id="debriefCard" style="display:none;">
+      <p class="label">Debriefing estructurado</p>
+      <div id="debrief" class="endbox"></div>
+    </div>
+  </div>
+
+<script>
+/*
+  Caso: NORA (RM / Intervencionismo) – sedación profunda con propofol/opiáceo, vía aérea compartida/no ideal,
+  evento de hipoventilación -> desaturación y colapso hemodinámico incipiente.
+  Objetivo: decisiones dicotómicas repetidas, pero con trayecto largo.
+*/
+
+const state = {
+  step: "S0",
+  log: [],
+  kpi: {
+    LlamarAyuda: 0,
+    Liderazgo: 0,
+    ClosedLoop: 0,
+    Reevaluacion: 0,
+    SeguridadNORA: 0,
+    Checklists: 0
+  }
+};
+
+function addLog(txt){
+  state.log.push(txt);
+  renderLog();
+}
+
+function bump(k){ state.kpi[k] = (state.kpi[k]||0) + 1; renderKpi(); }
+
+function tagFor(kind){
+  if(kind==="seguridad") return {emoji:"🛡️", tag:"Seguridad / NORA"};
+  if(kind==="crm") return {emoji:"🧠", tag:"CRM / factor humano"};
+  if(kind==="clinica") return {emoji:"🫁", tag:"Clínico (ABCD)"};
+  if(kind==="equipo") return {emoji:"👥", tag:"Equipo / roles"};
+  if(kind==="proceso") return {emoji:"🧾", tag:"Proceso / checklist"};
+  return {emoji:"🧭", tag:"Decisión"};
+}
+
+const nodes = {
+  S0: {
+    scene: `Estás en <b>Radiología intervencionista (NORA)</b>. Paciente masculino 58 años, IMC 34, SAOS sospechada (roncador), HTA controlada.
+    Procedimiento: <b>embolización</b> (duración estimada 90 min). Sedación planificada con propofol TCI (o infusión) + analgesia titulada.
+    Acceso al paciente limitado (campos, arco en C, cables). Monitorización: ECG, PANI c/3 min, SpO₂, capnografía por cánula nasal disponible.`,
+    meta: [
+      "Riesgos: SAOS, acceso limitado, ventilación difícil",
+      "Entorno NORA: recursos variables, ayuda a distancia",
+      "Objetivo: mantener seguridad y rescate de vía aérea"
+    ],
+    A: {
+      txt: "Antes de iniciar, haces “brief” de 60–90 s: roles, plan A/B de vía aérea, umbrales de llamada, y confirmas equipo/oxígeno/succión/capnografía.",
+      to: "S1",
+      fb: {
+        kind:"crm",
+        title:"Organizas el sistema antes del problema",
+        body:"En NORA, la seguridad se gana temprano: alinear expectativas, roles, recursos, y criterios de escalamiento reduce latencia decisional. Este tipo de brief es de alto rendimiento y bajo costo de tiempo.",
+        kpi:["Liderazgo","SeguridadNORA","Checklists"]
+      }
+    },
+    B: {
+      txt: "Inicias de inmediato (el equipo presiona por tiempo). Revisas equipo “sobre la marcha” mientras comienzas sedación.",
+      to: "S1",
+      fb: {
+        kind:"seguridad",
+        title:"Aceptas presión operativa sin contramedidas",
+        body:"Puede ser frecuente en NORA, pero incrementa riesgo de omisiones (oxígeno, succión, plan de rescate, comunicación). No es “incorrecto” per se; el costo oculto es que, si ocurre una crisis, el equipo no comparte el mismo modelo mental.",
+        kpi:[]
+      }
+    }
+  },
+
+  S1: {
+    scene: `Minuto 18. El procedimiento va estable, pero el paciente empieza a roncar. Capnografía muestra onda irregular con periodos de hipoventilación.
+    SpO₂ baja de 98% a 93%. FC 78, PANI 128/76. El radiólogo pide “un poco más de sedación porque se mueve”.`,
+    meta: ["Señal temprana: ventilación inestable", "Riesgo de espiral sedación–obstrucción", "Capnografía ya te avisó"],
+    A: {
+      txt: "Priorizas ventilación: reduces/titulas sedación, reposicionas cabeza/mandíbula, aumentas O₂, confirmas capnografía y pides pausa breve al operador.",
+      to: "S2",
+      fb: {
+        kind:"clinica",
+        title:"Tratas el problema temprano (ABCD pragmático)",
+        body:"La capnografía te dio diagnóstico funcional: ventilación comprometida antes de la desaturación severa. Intervenir temprano suele evitar rescates más invasivos y disminuye interrupciones mayores del procedimiento.",
+        kpi:["Reevaluacion","SeguridadNORA"]
+      }
+    },
+    B: {
+      txt: "Aumentas sedación para “evitar movimiento” y esperas que el oxígeno por cánula compense.",
+      to: "S2",
+      fb: {
+        kind:"clinica",
+        title:"Priorizas inmovilidad sobre fisiología",
+        body:"Es una tensión real en NORA. El riesgo es profundizar la obstrucción/hipoventilación, generando una crisis más abrupta con acceso limitado al paciente. Si decides sedación mayor, el plan de rescate debe adelantarse de inmediato.",
+        kpi:[]
+      }
+    }
+  },
+
+  S2: {
+    scene: `Minuto 21. SpO₂ cae a 86% en 30–45 s. Capnografía se aplana intermitente. El paciente está somnoliento, con tiraje leve; el acceso a la cabeza está parcialmente bloqueado por el arco en C.
+    El técnico dice: “para mover el arco necesito 20 segundos”.`,
+    meta: ["Desaturación rápida", "Acceso limitado", "Necesitas aire ahora"],
+    A: {
+      txt: "Das instrucción clara: “Pausa, retirar arco en C ya. Yo manejo vía aérea.” Inicias maniobras de vía aérea (jaw thrust + sellado con mascarilla o dispositivo disponible) y pides ayuda.",
+      to: "S3",
+      fb: {
+        kind:"equipo",
+        title:"Liderazgo explícito y liberación de acceso",
+        body:"En crisis, la prioridad es crear condiciones para ventilar: acceso, oxígeno, succión y manos. Un comando claro, con prioridad declarada, reduce confusión y acelera acciones paralelas.",
+        kpi:["Liderazgo","LlamarAyuda","ClosedLoop","SeguridadNORA"]
+      }
+    },
+    B: {
+      txt: "Intentas “hacer algo” sin pedir pausa formal ni mover el arco; te estiras para ventilar con acceso parcial mientras el procedimiento continúa.",
+      to: "S3",
+      fb: {
+        kind:"seguridad",
+        title:"Actúas con restricción física no resuelta",
+        body:"En NORA, intentar rescate sin acceso completo suele alargar el tiempo sin ventilación efectiva. No es raro que ocurra; la intervención de factor humano es declarar prioridad y detener lo que impide ventilar.",
+        kpi:[]
+      }
+    }
+  },
+
+  S3: {
+    scene: `Minuto 22. Ya con acceso a la cabeza. Ventilas con mascarilla: hay resistencia y fuga. SpO₂ 82% → 79%.
+    Auscultación rápida difícil por ruido. Secreciones mínimas. El patrón sugiere obstrucción de vía aérea superior y/o laringoespasmo parcial.`,
+    meta: ["Necesitas ventilación efectiva", "Tiempo crítico", "Decidir escalamiento"],
+    A: {
+      txt: "Optimización sistemática: 2 manos con mascarilla + OPA/NPA (si no contraindicada), PEEP moderada, y pides que alguien cuente en voz alta la saturación/tiempo mientras tú reevaluas.",
+      to: "S4",
+      fb: {
+        kind:"crm",
+        title:"Estandarizas y reduces carga cognitiva",
+        body:"Optimizar lo básico primero es eficiente. Pedir que alguien verbalice valores/tiempo y mantener comunicación en bucle cerrado mejora conciencia situacional y reduce fijación atencional.",
+        kpi:["ClosedLoop","Reevaluacion"]
+      }
+    },
+    B: {
+      txt: "Escalas de inmediato a intubación sin intentar optimización con dos manos/adyuvantes (te preocupa perder tiempo).",
+      to: "S4",
+      fb: {
+        kind:"clinica",
+        title:"Escalas rápido (válido si anticipas fracaso de bolsa-mascarilla)",
+        body:"La intubación puede ser apropiada, pero en NORA la intubación también consume tiempo/logística. Si la ventilación con mascarilla aún no se intentó de forma óptima, podrías perder una intervención de alto rendimiento. El punto clave es justificarlo y preparar el plan B/C.",
+        kpi:[]
+      }
+    }
+  },
+
+  S4: {
+    scene: `Minuto 23. Con OPA y 2 manos, la ventilación mejora parcialmente. Capnografía regresa con ondas pequeñas. SpO₂ sube a 84%→88%.
+    El radiólogo pregunta: “¿Podemos seguir? estamos justo en el paso crítico”.`,
+    meta: ["Mejoría parcial", "Presión del procedimiento", "Riesgo de recaída si continúas igual"],
+    A: {
+      txt: "Defines umbral: “Reanudamos solo si SpO₂ > 94% estable + capnografía adecuada + plan de sedación ajustado.” Pides pausa adicional y propones alternativa (LMA/GA, o menor sedación con mejor soporte).",
+      to: "S5",
+      fb: {
+        kind:"seguridad",
+        title:"Criterios explícitos para reanudar",
+        body:"La decisión no es “seguir o no”; es “bajo qué condiciones seguras”. Establecer umbrales reduce negociación improvisada y protege al paciente ante recidiva. En NORA, cambiar el plan (dispositivo supraglótico/GA) puede ser la opción más segura.",
+        kpi:["Liderazgo","SeguridadNORA","Reevaluacion"]
+      }
+    },
+    B: {
+      txt: "Accedes a continuar de inmediato para no “perder el momento”, manteniendo el mismo esquema de sedación con pequeños ajustes.",
+      to: "S5",
+      fb: {
+        kind:"crm",
+        title:"Priorizas continuidad operativa",
+        body:"Puede ser comprensible, pero el riesgo es volver a la misma dinámica: sedación mayor → obstrucción → crisis. Si decides continuar, el mitigador es reforzar monitorización (capnografía), soporte de vía aérea, y criterios claros de parada ante deterioro.",
+        kpi:[]
+      }
+    }
+  },
+
+  S5: {
+    scene: `Minuto 27. Se reanuda (con pausa breve). A los 2–3 minutos, el paciente vuelve a roncar, capnografía cae, SpO₂ 92%→88%.
+    La enfermera dice: “la vía venosa está en el brazo contralateral, cuesta acceso”.`,
+    meta: ["Recaída predecible", "Limitación de accesos", "Necesitas plan sostenido"],
+    A: {
+      txt: "Escalas el plan: decides asegurar vía aérea (p.ej., LMA) para estabilidad ventilatoria y coordinar con el equipo un “stop moment” para colocación segura.",
+      to: "S6",
+      fb: {
+        kind:"clinica",
+        title:"Controlas la variable inestable",
+        body:"En NORA, cuando la ventilación es la variable frágil, asegurar vía aérea puede ser más seguro que “microajustar” sedación. La clave es coordinar ventana de seguridad, equipo y roles, y anticipar reversión/recuperación.",
+        kpi:["SeguridadNORA","Liderazgo"]
+      }
+    },
+    B: {
+      txt: "Decides “aguantar” con maniobras intermitentes (jaw thrust) mientras el operador avanza, sin asegurar vía aérea.",
+      to: "S6",
+      fb: {
+        kind:"seguridad",
+        title:"Estrategia de contención",
+        body:"Puede funcionar en algunos casos, pero es frágil y dependiente del operador/posición. El riesgo principal es la fatiga del equipo y una nueva caída súbita con acceso comprometido. Si eliges esta ruta, exige alta disciplina de reevaluación y umbrales de parada.",
+        kpi:["Reevaluacion"]
+      }
+    }
+  },
+
+  S6: {
+    scene: `Minuto 29. Durante el intento de estabilizar, ocurre un evento más severo: capnografía desaparece, SpO₂ 78%.
+    PANI cae a 82/48, FC 52. El paciente está flácido. El entorno se vuelve ruidoso: varias personas hablan al mismo tiempo.`,
+    meta: ["Crisis combinada: ventilación + hemodinamia", "Riesgo de fijación atencional", "Necesitas equipo alineado"],
+    A: {
+      txt: "Haces “anuncio de crisis” y asignas roles: 1) vía aérea/ventilación, 2) fármacos/IV, 3) monitorización/tiempos, 4) comunicación con procedimiento. Pides silencio operativo y bucle cerrado.",
+      to: "S7",
+      fb: {
+        kind:"equipo",
+        title:"Restauras estructura en el caos",
+        body:"Esto es CRM puro: al declarar crisis y repartir tareas, reduces interferencia y duplicidad. El silencio operativo y el closed-loop permiten detectar rápido si la intervención está funcionando.",
+        kpi:["Liderazgo","ClosedLoop","LlamarAyuda"]
+      }
+    },
+    B: {
+      txt: "Te concentras solo en intubar/ventilar sin verbalizar roles ni prioridades; el equipo sigue hablando y actuando sin coordinación.",
+      to: "S7",
+      fb: {
+        kind:"crm",
+        title:"Alta carga cognitiva sin contención del sistema",
+        body:"No “está mal” enfocarte en la vía aérea, pero el costo puede ser que nadie gestione fármacos/IV/tiempos ni contenga el entorno. En NORA, el sistema sin coordinación tiende a empeorar tu desempeño técnico.",
+        kpi:[]
+      }
+    }
+  },
+
+  S7: {
+    scene: `Minuto 30. Ventilas con bolsa-mascarilla: el tórax apenas se eleva; la presión es alta.
+    Consideras dos posibilidades: 1) obstrucción severa/laringoespasmo, 2) broncoespasmo/hiperinflación. SpO₂ 76%. PANI 78/44.`,
+    meta: ["Necesitas una hipótesis operativa", "Intervenir sin retrasar", "Evitar fijación"],
+    A: {
+      txt: "Actúas por algoritmo: optimizas ventilación y tratas laringoespasmo/obstrucción (presión positiva, profundizar anestesia si seguro, considerar relajante si no ventila), mientras confirmas capnografía y revisas rápidamente equipo/circuito.",
+      to: "S8",
+      fb: {
+        kind:"clinica",
+        title:"Intervención paralela con verificación de sistema",
+        body:"En crisis respiratoria, revisar ‘máquina–circuito–paciente’ evita pasar por alto causas corregibles. La intervención debe ser simultánea y priorizar ‘ventilar ahora’.",
+        kpi:["Reevaluacion","SeguridadNORA"]
+      }
+    },
+    B: {
+      txt: "Asumes broncoespasmo y administras broncodilatador sin priorizar ventilación efectiva ni revisar circuito/equipo.",
+      to: "S8",
+      fb: {
+        kind:"clinica",
+        title:"Hipótesis única temprana",
+        body:"Dar broncodilatador puede ser útil, pero si no hay ventilación efectiva (y capnografía ausente), el tratamiento farmacológico aislado no resuelve el problema inmediato. El aprendizaje es evitar ‘diagnóstico túnel’ bajo estrés.",
+        kpi:[]
+      }
+    }
+  },
+
+  S8: {
+    scene: `Minuto 31. Con intervención activa, recuperas algo de ventilación: aparece capnografía pequeña, SpO₂ 80%→86%.
+    La presión arterial sigue baja. El operador pregunta si debe cancelar. El equipo espera tu decisión.`,
+    meta: ["Mejoría parcial", "Hipotensión persistente", "Decisión de continuar vs abortar"],
+    A: {
+      txt: "Defines: “Se aborta temporalmente. Estabilizamos ventilación y hemodinamia primero; luego reevaluamos riesgo/beneficio.” Solicitas traslado a entorno con mayor control (OR o sala de recuperación avanzada) si procede.",
+      to: "S9",
+      fb: {
+        kind:"seguridad",
+        title:"Priorizas estabilización y entorno adecuado",
+        body:"En NORA, cambiar de entorno (mejor acceso, más recursos) puede ser la intervención definitiva de seguridad. Suspender temporalmente no es ‘fracaso’: es control de riesgo.",
+        kpi:["Liderazgo","SeguridadNORA"]
+      }
+    },
+    B: {
+      txt: "Decides continuar porque “ya casi terminan”, manteniendo soporte ventilatorio y tratando la hipotensión al mismo tiempo en el mismo sitio.",
+      to: "S9",
+      fb: {
+        kind:"seguridad",
+        title:"Continuidad con riesgo residual alto",
+        body:"Puede ser defendible solo si la estabilización es robusta y el plan de rescate está listo. Si la mejoría es frágil, la probabilidad de recaída durante un paso crítico puede superar el beneficio de terminar.",
+        kpi:[]
+      }
+    }
+  },
+
+  S9: {
+    scene: `Minuto 34. Tras medidas, SpO₂ 95% con ventilación asistida; PANI 96/58 tras fluidos/vasopresor titulado.
+    Ahora viene la parte de “cierre”: comunicar, documentar y aprender. El equipo está cansado y el área quiere “volver a la normalidad”.`,
+    meta: ["Riesgo de ‘normalización’", "Necesidad de cierre seguro", "Aprendizaje del evento"],
+    A: {
+      txt: "Haces cierre estructurado de 2–3 min: resumen del evento, acciones clave, estatus actual, plan de vigilancia/traslado, y registras en nota y reporte de evento (según política local). Mini-debrief inmediato.",
+      to: "END_GOOD",
+      fb: {
+        kind:"proceso",
+        title:"Cierre seguro y cultura de aprendizaje",
+        body:"El ‘finish’ es parte del manejo de crisis: comunicación final evita errores de continuidad (PACU, traslado, handoff). El mini-debrief fortalece factor humano y reduce repetición de fallas latentes.",
+        kpi:["Checklists","ClosedLoop"]
+      }
+    },
+    B: {
+      txt: "Das por terminado el tema sin resumen; pides “vigilar en recuperación” y te retiras para el siguiente caso.",
+      to: "END_WARN",
+      fb: {
+        kind:"crm",
+        title:"Cierre incompleto",
+        body:"Es común por presión de flujo, pero incrementa riesgo de fallas en el handoff y pierde oportunidades de aprendizaje. Si no hay tiempo para debrief, al menos un resumen clínico y plan explícito de vigilancia/alarma es crítico.",
+        kpi:[]
+      }
+    }
+  },
+
+  END_GOOD: {
+    end: true,
+    endClass: "endbox",
+    title: "Fin del caso – Control de crisis con enfoque en factor humano",
+    debrief: `
+      <p><b>Qué decisiones tuvieron mayor impacto:</b></p>
+      <ul>
+        <li><b>Reconocer señales tempranas</b> (capnografía/ronquido) y actuar antes de la desaturación severa.</li>
+        <li><b>Declarar prioridad y liberar acceso</b> (pausa del procedimiento, retirar arco/equipo que bloquea).</li>
+        <li><b>Asignar roles y usar closed-loop</b> para sostener rendimiento bajo estrés.</li>
+        <li><b>Definir umbrales para reanudar</b> y considerar cambiar el plan (p.ej., asegurar vía aérea) cuando la ventilación es frágil.</li>
+        <li><b>Cierre estructurado</b>: handoff seguro + aprendizaje (mini-debrief).</li>
+      </ul>
+      <p><b>Sesgos/fallas humanas típicas en NORA (a vigilar):</b> fijación en “no interrumpir”, normalización del desvío, diagnóstico túnel, y comunicación no dirigida.</p>
+      <p><b>Pregunta para pensamiento crítico:</b> En tu entorno real de NORA, ¿cuál es el <i>umbral operativo</i> (SpO₂, EtCO₂, acceso, recursos disponibles) que justifica convertir a anestesia general o cambiar de sala, y cómo lo comunicarías en 15 segundos sin generar conflicto?</p>
+    `
+  },
+
+  END_WARN: {
+    end: true,
+    endClass: "endbox warnline",
+    title: "Fin del caso – Crisis resuelta, pero con vulnerabilidades residuales",
+    debrief: `
+      <p><b>Resultado:</b> el paciente se estabiliza, pero quedaron <b>riesgos de continuidad</b> (handoff menos explícito, aprendizaje perdido, y mayor probabilidad de repetición de fallas latentes).</p>
+      <p><b>Oportunidad de mejora de alto rendimiento:</b></p>
+      <ul>
+        <li>Establecer un <b>brief estándar NORA</b> (roles, recursos, umbrales) incluso cuando “hay prisa”.</li>
+        <li>Usar <b>frases gatillo</b>: “Pausa. Prioridad: ventilar”, “Yo lidero vía aérea”, “Criterios para reanudar: …”.</li>
+        <li>Cerrar con <b>resumen + plan</b> (monitorización, traslado, vigilancia) aunque sea en 30–60 s.</li>
+      </ul>
+      <p><b>Pregunta para pensamiento crítico:</b> ¿Qué elemento del sistema (personal, equipo, layout, protocolo, cultura) fue el “punto de falla” más importante, y cuál es una intervención de bajo costo que podrías implementar esta semana?</p>
+    `
+  }
+};
+
+function render(nodeId){
+  const n = nodes[nodeId];
+  state.step = nodeId;
+
+  const sceneEl = document.getElementById("scene");
+  const metaEl  = document.getElementById("meta");
+  const aBtn    = document.getElementById("aBtn");
+  const bBtn    = document.getElementById("bBtn");
+  const fbBox   = document.getElementById("fb");
+  const debriefCard = document.getElementById("debriefCard");
+
+  fbBox.style.display = "none";
+  debriefCard.style.display = "none";
+
+  sceneEl.innerHTML = n.scene;
+  metaEl.innerHTML = "";
+  (n.meta||[]).forEach(m=>{
+    const d=document.createElement("div");
+    d.textContent=m;
+    metaEl.appendChild(d);
+  });
+
+  if(n.end){
+    aBtn.style.display="none";
+    bBtn.style.display="none";
+    showDebrief(n);
+    return;
+  }
+
+  aBtn.style.display="block";
+  bBtn.style.display="block";
+
+  aBtn.textContent = "A) " + n.A.txt;
+  bBtn.textContent = "B) " + n.B.txt;
+
+  aBtn.onclick = ()=> choose("A");
+  bBtn.onclick = ()=> choose("B");
+}
+
+function choose(opt){
+  const n = nodes[state.step];
+  const choice = n[opt];
+  addLog(`Paso ${state.step} – Elegiste ${opt}: ${choice.txt}`);
+
+  // feedback
+  showFeedback(choice.fb);
+
+  // KPIs
+  (choice.fb.kpi||[]).forEach(bump);
+
+  // advance
+  setTimeout(()=> render(choice.to), 700); // breve pausa para que se lea feedback
+}
+
+function showFeedback(fb){
+  const fbBox = document.getElementById("fb");
+  const fbEmoji = document.getElementById("fbEmoji");
+  const fbTitle = document.getElementById("fbTitle");
+  const fbTag   = document.getElementById("fbTag");
+  const fbBody  = document.getElementById("fbBody");
+
+  const t = tagFor(fb.kind);
+  fbEmoji.textContent = t.emoji;
+  fbTitle.textContent = fb.title || "Retroalimentación";
+  fbTag.textContent   = t.tag;
+  fbBody.textContent  = fb.body || "";
+
+  fbBox.style.display = "block";
+}
+
+function renderLog(){
+  const logEl = document.getElementById("log");
+  logEl.innerHTML = "";
+  state.log.slice().reverse().forEach(x=>{
+    const p=document.createElement("p");
+    p.textContent = x;
+    logEl.appendChild(p);
+  });
+}
+
+function renderKpi(){
+  const k = state.kpi;
+  const kpis = document.getElementById("kpis");
+  kpis.innerHTML = "";
+  const entries = [
+    ["LlamarAyuda","Escalamiento/ayuda"],
+    ["Liderazgo","Liderazgo"],
+    ["ClosedLoop","Closed-loop"],
+    ["Reevaluacion","Reevaluación"],
+    ["SeguridadNORA","Seguridad NORA"],
+    ["Checklists","Proceso/checklist"]
+  ];
+  entries.forEach(([key,label])=>{
+    const s=document.createElement("span");
+    s.textContent = `${label}: ${k[key]||0}`;
+    kpis.appendChild(s);
+  });
+}
+
+function showDebrief(endNode){
+  const debriefCard = document.getElementById("debriefCard");
+  const debrief = document.getElementById("debrief");
+
+  debriefCard.style.display = "block";
+  debrief.className = endNode.endClass || "endbox";
+  debrief.innerHTML = `<p><b>${endNode.title}</b></p>` + endNode.debrief;
+
+  addLog(`FIN – ${endNode.title}`);
+}
+
+document.getElementById("restartBtn").onclick = ()=>{
+  state.step="S0";
+  state.log=[];
+  state.kpi = {LlamarAyuda:0,Liderazgo:0,ClosedLoop:0,Reevaluacion:0,SeguridadNORA:0,Checklists:0};
+  document.getElementById("aBtn").style.display="block";
+  document.getElementById("bBtn").style.display="block";
+  render("S0");
+  renderKpi();
+  renderLog();
+};
+
+document.getElementById("toggleLogBtn").onclick = ()=>{
+  const logEl = document.getElementById("log");
+  logEl.style.display = (logEl.style.display==="none") ? "block" : "none";
+};
+
+render("S0");
+renderKpi();
+</script>
+</body>
+</html>
